@@ -1,6 +1,8 @@
 import React from 'react';
 
 import Board from './Board';
+import HeroState from "./base/HeroState";
+import Coordinate from "./base/Coordinate";
 
 const style = {
   container: {
@@ -12,23 +14,18 @@ const style = {
   }
 };
 
-const label = "X";
 const length = 21;
 
 export default class Game extends React.Component {
-  constructor() {
-    super();
-
-    let temp = [];
-    Array(length).fill(null).forEach(() => {
-      temp.push(Array(length).fill(null))
-    });
+  constructor(props) {
+    super(props);
 
     const socket = new WebSocket("ws://localhost:7070/");
 
     socket.onopen = () => {
       console.log("Connection established");
-      socket.send(JSON.stringify({x: 0, y: 0}));
+      console.log(props.token);
+      socket.send(JSON.stringify(new HeroState(props.token, new Coordinate(0, 0))));
     };
 
     socket.onclose = function(event) {
@@ -38,55 +35,69 @@ export default class Game extends React.Component {
     const self = this;
     socket.onmessage = function(event) {
       const data = JSON.parse(event.data);
+      console.log(data);
 
       self.setBoard(data);
     };
 
     this.state = {
-      squares: temp,
+      squares: this.generateBoard(),
       socket: socket,
-      me: {x: 0, y: 0}
+      me: {
+        coordinate: {x: 0, y: 0}
+      }
     };
   }
 
+
+
+  generateBoard() {
+      let temp = [];
+      Array(length).fill(null).forEach(() => {
+          temp.push(Array(length).fill(null))
+      });
+
+      return temp;
+  }
+
   setBoard(data) {
-    data.forEach((i) => {
-      if (i.me) this.state.me = i;
+    this.setState({me: data.me});
+
+    const bias = Math.round(length/2)-1;
+    const x = this.state.me.coordinate.x;
+    const y = this.state.me.coordinate.y;
+
+    let squares = this.generateBoard();
+
+    data.otherPlayers.forEach((i) => {
+      squares[bias + i.coordinate.y - y][bias + i.coordinate.x - x] = i.token;
     });
+    squares[bias][bias] = this.state.me.token;
 
-    const bias = 10;
-    const x = this.state.me.x;
-    const y = this.state.me.y;
-
-    let squares = [];
-    Array(length).fill(null).forEach(() => {
-      squares.push(Array(length).fill(null))
-    });
-
-    data.forEach((i) => {
-      squares[bias + i.y - y][bias + i.x - x] = label;
-    });
-
-    this.setState({squares: squares})
+    this.setState({squares: squares});
+    this.props.changeCoordinate(this.state.me.coordinate);
   }
 
   handleKeyPress = (event) => {
+    let heroState;
     switch (event.key) {
       case "w":
-        console.log(event.key);
-        this.state.socket.send(JSON.stringify({x:this.state.me.x, y: this.state.me.y-1}));
+        heroState = new HeroState(this.props.token, new Coordinate(this.state.me.coordinate.x, this.state.me.coordinate.y-1));
+        this.state.socket.send(JSON.stringify(heroState));
         break;
       case "a":
-        console.log(event.key);
-        this.state.socket.send(JSON.stringify({x:this.state.me.x-1, y: this.state.me.y}));
+        heroState = new HeroState(this.props.token, new Coordinate(this.state.me.coordinate.x-1, this.state.me.coordinate.y));
+        this.state.socket.send(JSON.stringify(heroState));
         break;
       case "s":
-        console.log(event.key);
-        this.state.socket.send(JSON.stringify({x:this.state.me.x, y: this.state.me.y+1}));
+        heroState = new HeroState(this.props.token, new Coordinate(this.state.me.coordinate.x, this.state.me.coordinate.y+1));
+        this.state.socket.send(JSON.stringify(heroState));
         break;
       case "d":
-        console.log(event.key);
-        this.state.socket.send(JSON.stringify({x:this.state.me.x+1, y: this.state.me.y}));
+        heroState = new HeroState(this.props.token, new Coordinate(this.state.me.coordinate.x+1, this.state.me.coordinate.y));
+        this.state.socket.send(JSON.stringify(heroState));
+        break;
+      default:
         break;
     }
   };

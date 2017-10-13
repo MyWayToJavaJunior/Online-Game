@@ -1,11 +1,20 @@
 package online_game.server;
 
-import online_game.base.Coordinate;
+import online_game.base.Board;
+import online_game.dataset.HeroState;
 
 import java.io.IOException;
 
-public interface Client {
-    void send(Coordinate[] coords) throws IOException;
-    void setCoordinate(Coordinate coordinate);
-    Coordinate getCoordinate();
+public abstract class Client {
+    private HeroState heroState;
+
+    public abstract void send(Board board) throws IOException;
+
+    public HeroState getHeroState() {
+        return heroState;
+    }
+
+    public void setHeroState(HeroState heroState) {
+        this.heroState = heroState;
+    }
 }

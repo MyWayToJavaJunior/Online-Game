@@ -6,7 +6,6 @@ let style = {
   float: "left",
   fontSize: 24,
   fontWeight: "bold",
-  // lineHeight: 34,
   height: 34,
   marginRight: -1,
   marginTop: -1,

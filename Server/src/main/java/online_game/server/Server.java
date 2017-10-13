@@ -1,10 +1,10 @@
 package online_game.server;
 
-import online_game.base.Coordinate;
+import online_game.base.Board;
+import online_game.dataset.Coordinate;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,7 +14,7 @@ public class Server {
     private static final Logger logger = Logger.getLogger(Server.class.getName());
 
     private static final int MARGIN = 10;
-    private static final int FPS = 10;
+    private static final int FPS = 1;
 
     private final Set<Client> clients;
 
@@ -31,27 +31,31 @@ public class Server {
     private Object send() throws InterruptedException, IOException {
         while (true) {
             for (Client client : clients) {
-                client.send(getNearestClient(client, client.getCoordinate()));
+                client.send(getBoardForClient(client));
             }
             Thread.sleep(1000 / FPS);
         }
     }
 
-    private Coordinate[] getNearestClient(Client self, Coordinate coordinate) {
-        List<Coordinate> result = new ArrayList<>();
-        int x = coordinate.getX();
-        int y = coordinate.getY();
+    private Board getBoardForClient(Client self) {
+        Board board = new Board(self.getHeroState(), new ArrayList<>());
 
-        result.add(new Coordinate(x, y, true));
+        int x = self.getHeroState().getCoordinate().getX();
+        int y = self.getHeroState().getCoordinate().getY();
 
         for (Client client : clients) {
             if (self == client) continue;
 
-            Coordinate coord = client.getCoordinate();
-            if (coord.getX() > x-MARGIN && coord.getX() < x+MARGIN && coord.getY() > y-MARGIN && coord.getY() < y+MARGIN)
-                result.add(coord);
+            Coordinate coordinate = client.getHeroState().getCoordinate();
+            if (
+                    coordinate.getX() > x-MARGIN &&
+                    coordinate.getX() < x+MARGIN &&
+                    coordinate.getY() > y-MARGIN &&
+                    coordinate.getY() < y+MARGIN
+                )
+                board.getOtherPlayers().add(client.getHeroState());
         }
 
-        return result.toArray(new Coordinate[result.size()]);
+        return board;
     }
 }
