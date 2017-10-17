@@ -1,7 +1,6 @@
 package online_game.server.websocket.endpoint;
 
-import online_game.dataset.HeroState;
-import online_game.base.MessageHelper;
+import online_game.dataset.Message;
 import online_game.server.Client;
 import online_game.server.websocket.WebSocketClient;
 
@@ -31,15 +30,8 @@ public class RootWS {
 
     @OnMessage
     public void handleMessage(String message, Session session) {
-        HeroState heroState = MessageHelper.fromJson(message, HeroState.class);
-
-        WebSocketClient client = wsClients.get(session);
-        if (client.getHeroState() == null) {
-            client.setHeroState(heroState);
-            clients.add(client);
-        } else {
-            client.setHeroState(heroState);
-        }
+        Message msg = Message.fromJson(message);
+        wsClients.get(session).handle(msg, clients);
     }
 
     @OnClose

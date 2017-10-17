@@ -1,7 +1,6 @@
 package online_game.server.socket;
 
-import online_game.dataset.HeroState;
-import online_game.base.MessageHelper;
+import online_game.dataset.Message;
 import online_game.server.Client;
 
 import java.io.IOException;
@@ -111,17 +110,10 @@ public class SocketServer {
     }
 
     private void readCoord(SocketChannel channel) throws ClassNotFoundException, IOException {
-        HeroState heroState = MessageHelper.fromJson(readBuilder.toString(), HeroState.class);
+        Message msg = Message.fromJson(readBuilder.toString());
         readBuilder = new StringBuilder();
 
-        logger.info("Message received: " + heroState + " from: " + channel.getRemoteAddress());
-
         Client client = channelClients.get(channel);
-        if (client.getHeroState() == null) {
-            client.setHeroState(heroState);
-            clients.add(client);
-        } else {
-            client.setHeroState(heroState);
-        }
+        client.handle(msg, clients);
     }
 }

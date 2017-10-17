@@ -3,12 +3,18 @@ package online_game.dataset;
 import lombok.Data;
 
 @Data
-public class HeroState {
+public class HeroState extends Message {
     private Coordinate coordinate;
-    private String token;
+    private int health;
+    private User user;
 
-    public HeroState(Coordinate coordinate, String token) {
-        this.coordinate = coordinate;
-        this.token = token;
+    public HeroState() {
     }
+
+    public HeroState(Coordinate coordinate, User user) {
+        this.coordinate = coordinate;
+        this.user = user;
+    }
+
+
 }

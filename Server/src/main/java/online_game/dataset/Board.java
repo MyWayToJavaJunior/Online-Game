@@ -1,7 +1,6 @@
-package online_game.base;
+package online_game.dataset;
 
 import lombok.Data;
-import online_game.dataset.HeroState;
 
 import java.util.List;
 

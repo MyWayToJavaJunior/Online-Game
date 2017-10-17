@@ -1,6 +1,6 @@
 package online_game.server;
 
-import online_game.base.Board;
+import online_game.dataset.Board;
 import online_game.dataset.Coordinate;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class Server {
     private static final Logger logger = Logger.getLogger(Server.class.getName());
 
     private static final int MARGIN = 10;
-    private static final int FPS = 1;
+    private static final int FPS = 10;
 
     private final Set<Client> clients;
 

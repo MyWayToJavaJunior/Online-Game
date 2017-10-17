@@ -1,7 +1,7 @@
 package online_game.server.websocket;
 
-import online_game.base.Board;
-import online_game.base.MessageHelper;
+import online_game.dataset.Board;
+import online_game.dataset.Message;
 import online_game.server.Client;
 
 import javax.websocket.Session;
@@ -21,6 +21,6 @@ public class WebSocketClient extends Client {
 
     @Override
     public void send(Board board) throws IOException {
-        session.getBasicRemote().sendText(MessageHelper.toJson(board));
+        session.getBasicRemote().sendText(Message.toJson(board));
     }
 }

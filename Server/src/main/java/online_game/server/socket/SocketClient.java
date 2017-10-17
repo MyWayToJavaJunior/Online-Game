@@ -1,7 +1,7 @@
 package online_game.server.socket;
 
-import online_game.base.Board;
-import online_game.base.MessageHelper;
+import online_game.dataset.Board;
+import online_game.dataset.Message;
 import online_game.server.Client;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class SocketClient extends Client {
 
     @Override
     public void send(Board board) throws IOException {
-        String json = MessageHelper.toJson(board) + MESSAGES_SEPARATOR;
+        String json = Message.toJson(board) + MESSAGES_SEPARATOR;
         ByteBuffer buffer = ByteBuffer.wrap(json.getBytes());
 
         logger.info("Send message " + json + ", to (" + channel.getRemoteAddress() + ")");
